@@ -1,5 +1,5 @@
 import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
-import { Length, IsUrl, IsNumber, Min, IsInt } from 'class-validator';
+import { Length, IsUrl, IsNumber, Min, IsInt, IsString } from 'class-validator';
 import { User } from 'src/users/entities/user.entity';
 import { Offer } from 'src/offers/entities/offer.entity';
 import { AbstractEntity } from 'src/entities/abstract-entity';
@@ -28,10 +28,11 @@ export class Wish extends AbstractEntity {
   @Min(0)
   raised: number;
 
-  @ManyToOne(() => User, (owner) => owner.wishes)
+  @ManyToOne(() => User, (user) => user.wishes)
   owner: User;
 
   @Column({ type: 'text' })
+  @IsString()
   @Length(1, 1024)
   description: string;
 

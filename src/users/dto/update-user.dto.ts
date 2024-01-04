@@ -12,13 +12,11 @@ export class UpdateUserDto {
   about?: string;
 
   @IsOptional()
-  @IsString()
   @IsUrl()
   avatar?: string;
 
   @IsOptional()
   @IsEmail()
-  @IsString()
   email?: string;
 
   @IsOptional()

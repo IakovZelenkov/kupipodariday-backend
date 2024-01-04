@@ -38,12 +38,17 @@ export class UsersService {
     return await this.usersRepository.save(user);
   }
 
-  async findOne(
-    filter: Partial<Pick<User, 'id' | 'username' | 'email'>>,
-  ): Promise<User[]> {
-    return await this.usersRepository.findBy(filter);
+  async findAll(): Promise<User[]> {
+    return await this.usersRepository.find();
   }
 
+  async findByEmailOrUsername(
+    filter: Partial<Pick<User, 'username' | 'email'>>,
+  ): Promise<User> {
+    return await this.usersRepository.findOne({
+      where: [{ email: filter.email }, { username: filter.username }],
+    });
+  }
   async findByUsername(username: string): Promise<User> {
     return await this.usersRepository.findOneBy({ username });
   }
@@ -98,4 +103,6 @@ export class UsersService {
 
     return updatedUser;
   }
+
+  // TODO findeUserWishes, findMany
 }

@@ -8,7 +8,7 @@ import { UpdateWishDto } from './dto/update-wish.dto';
 import { Wish } from './entities/wish.entity';
 import { User } from 'src/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -29,11 +29,20 @@ export class WishesService {
     return await this.wishesRepository.find();
   }
 
+  async findManyById(arrayOfIds: number[]): Promise<Wish[]> {
+    return this.wishesRepository.findBy({ id: In(arrayOfIds) });
+  }
+
   async findById(id: number): Promise<Wish> {
     const wish = await this.wishesRepository.findOne({
       where: { id },
       relations: { offers: true, owner: true },
     });
+
+    if (!wish) {
+      throw new NotFoundException('Подарок не найден');
+    }
+
     return wish;
   }
 
@@ -43,9 +52,6 @@ export class WishesService {
     userId: number,
   ): Promise<void> {
     const wish = await this.findById(id);
-    if (!wish) {
-      throw new NotFoundException('Подарок не найден');
-    }
     if (wish.owner.id !== userId) {
       throw new ForbiddenException('Вы не можете редактировать чужие подарки');
     }
@@ -55,9 +61,7 @@ export class WishesService {
 
   async removeOne(id: number, userId: number): Promise<void> {
     const wish = await this.findById(id);
-    if (!wish) {
-      throw new NotFoundException('Подарок не найден');
-    }
+
     if (wish.owner.id !== userId) {
       throw new ForbiddenException('Вы не можете удалять чужие подарки');
     }

@@ -55,7 +55,13 @@ export class WishesService {
     if (wish.owner.id !== userId) {
       throw new ForbiddenException('Вы не можете редактировать чужие подарки');
     }
-    // TODO Check for raised and price
+
+    if (wish.raised > 0) {
+      throw new ForbiddenException(
+        'Нельзя менять стоимость подарка, уже есть желающие скинуться',
+      );
+    }
+
     await this.wishesRepository.update({ id }, updateWishDto);
   }
 

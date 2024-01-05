@@ -1,5 +1,4 @@
 import {
-  ForbiddenException,
   Injectable,
   NotFoundException,
   ConflictException,
@@ -8,7 +7,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { HashService } from 'src/auth/hash/hash.service';
 
 @Injectable()
@@ -99,6 +98,12 @@ export class UsersService {
     delete updatedUser.password;
 
     return updatedUser;
+  }
+
+  async findMany(query: string): Promise<User[]> {
+    return this.usersRepository.find({
+      where: [{ username: Like(`%${query}%`) }, { email: Like(`%${query}%`) }],
+    });
   }
 
   // TODO findeUserWishes, findMany

@@ -9,14 +9,12 @@ import { Wish } from './entities/wish.entity';
 import { User } from 'src/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class WishesService {
   constructor(
     @InjectRepository(Wish)
     private readonly wishesRepository: Repository<Wish>,
-    private readonly usersService: UsersService,
   ) {}
 
   async create(owner: User, createWishDto: CreateWishDto): Promise<Wish> {

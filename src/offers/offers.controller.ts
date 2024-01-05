@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { OffersService } from './offers.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
-import { UpdateOfferDto } from './dto/update-offer.dto';
 
 @Controller('offers')
 export class OffersController {
@@ -17,26 +16,26 @@ export class OffersController {
 
   @Post()
   create(@Body() createOfferDto: CreateOfferDto) {
-    return this.offersService.create(createOfferDto);
+    return '';
   }
 
   @Get()
   findAll() {
-    return this.offersService.findAll();
+    return '';
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.offersService.findOne(+id);
+    return '';
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOfferDto: UpdateOfferDto) {
-    return this.offersService.update(+id, updateOfferDto);
+  update(@Param('id') id: string) {
+    return '';
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.offersService.remove(+id);
+    return '';
   }
 }

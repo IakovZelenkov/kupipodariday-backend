@@ -4,6 +4,7 @@ import { Wish } from 'src/wishes/entities/wish.entity';
 import { Offer } from 'src/offers/entities/offer.entity';
 import { Wishlist } from 'src/wishlists/entities/wishlist.entity';
 import { AbstractEntity } from 'src/entities/abstract-entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 @Unique(['username', 'email'])
@@ -14,19 +15,20 @@ export class User extends AbstractEntity {
 
   @Column({ type: 'text', default: 'Пока ничего не рассказал о себе' })
   @IsString()
-  @Length(2, 200)
   @IsOptional()
+  @Length(2, 200)
   about: string;
 
   @Column({ type: 'varchar', default: 'https://i.pravatar.cc/300' })
-  @IsUrl()
   @IsOptional()
+  @IsUrl()
   avatar: string;
 
   @Column({ type: 'varchar', unique: true })
   @IsEmail()
   email: string;
 
+  @Exclude()
   @Column({ type: 'varchar', length: 255 })
   @IsString()
   @Length(5, 255)

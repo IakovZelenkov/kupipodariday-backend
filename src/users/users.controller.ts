@@ -2,41 +2,52 @@ import {
   Controller,
   Get,
   Post,
-  Body,
   Patch,
+  Req,
+  Body,
   Param,
-  Delete,
+  UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
+import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
 
+@UseGuards(JwtGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @Get('me')
+  async getMe(@Req() req: any): Promise<User> {
+    const user = await this.usersService.findById(req.user.id);
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
+    return user;
   }
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @Patch('me')
+  async updateMe(
+    @Req() req: any,
+    @Body() updateUsertDto: UpdateUserDto,
+  ): Promise<User> {
+    return await this.usersService.updateOne(req.user.id, updateUsertDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  @Get(':username')
+  async findByUsername(@Param('username') username: string): Promise<User> {
+    const user = await this.usersService.findByUsername(username);
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+    return user;
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @Post('find')
+  async findUsers(@Body() body: { query: string }): Promise<User[]> {
+    return this.usersService.findMany(body.query);
   }
 }

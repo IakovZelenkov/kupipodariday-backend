@@ -7,11 +7,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './strategies/local.strategy';
 import { AuthController } from './auth.controller';
+import { HashModule } from './hash/hash.module';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
+    ConfigModule,
+    HashModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

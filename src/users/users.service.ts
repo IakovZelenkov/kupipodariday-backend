@@ -2,13 +2,14 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { HashService } from 'src/hash/hash.service';
+import { HashService } from 'src/auth/hash/hash.service';
 
 @Injectable()
 export class UsersService {
@@ -21,20 +22,16 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const usernameExists = await this.findByUsername(createUserDto.username);
     if (usernameExists) {
-      throw new ForbiddenException(
-        'Пользователь с таким именем уже существует',
-      );
+      throw new ConflictException('Пользователь с таким именем уже существует');
     }
 
     const emailExists = await this.findByEmail(createUserDto.email);
     if (emailExists) {
-      throw new ForbiddenException(
-        'Пользователь с такой почтой уже существует',
-      );
+      throw new ConflictException('Пользователь с такой почтой уже существует');
     }
 
     const user = this.usersRepository.create(createUserDto);
-    user.password = await this.hashService.hashString(createUserDto.password);
+    user.password = await this.hashService.hashPassword(createUserDto.password);
     return await this.usersRepository.save(user);
   }
 
@@ -72,7 +69,7 @@ export class UsersService {
     }
 
     if (updateUserDto.password) {
-      const hashedPassword = await this.hashService.hashString(
+      const hashedPassword = await this.hashService.hashPassword(
         updateUserDto.password,
       );
       updateUserDto.password = hashedPassword;
@@ -81,7 +78,7 @@ export class UsersService {
     if (updateUserDto.username && updateUserDto.username !== user.username) {
       const usernameExists = await this.findByUsername(updateUserDto.username);
       if (usernameExists && usernameExists.id !== id) {
-        throw new ForbiddenException(
+        throw new ConflictException(
           'Пользователь с таким логином уже зарегистрирован',
         );
       }
@@ -90,7 +87,7 @@ export class UsersService {
     if (updateUserDto.email && updateUserDto.email !== user.email) {
       const emailExists = await this.findByEmail(updateUserDto.email);
       if (emailExists && emailExists.id !== id) {
-        throw new ForbiddenException(
+        throw new ConflictException(
           'Пользователь с такой почтой уже зарегистрирован',
         );
       }

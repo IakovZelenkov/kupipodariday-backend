@@ -72,7 +72,7 @@ export class WishesService {
     await this.wishesRepository.delete({ id });
   }
 
-  async getLastWIshes(): Promise<Wish[]> {
+  async findLastWIshes(): Promise<Wish[]> {
     const lastWishes = await this.wishesRepository.find({
       order: { id: 'DESC' },
       take: 40,
@@ -81,7 +81,7 @@ export class WishesService {
     return lastWishes;
   }
 
-  async getTopWishes(): Promise<Wish[]> {
+  async findTopWishes(): Promise<Wish[]> {
     const topWishes = await this.wishesRepository.find({
       order: { copied: 'DESC' },
       take: 10,
@@ -104,5 +104,25 @@ export class WishesService {
     });
 
     return wishes;
+  }
+
+  async copyWish(id: number, user: User): Promise<Wish> {
+    const wish = await this.findById(id);
+
+    if (wish.owner.id === user.id) {
+      throw new ForbiddenException('Нельзя копировать свой подарок');
+    }
+
+    await this.wishesRepository.increment({ id: wish.id }, 'copied', 1);
+
+    const newWishData: CreateWishDto = {
+      name: wish.name,
+      link: wish.link,
+      image: wish.image,
+      price: wish.price,
+      description: wish.description,
+    };
+
+    return this.create(user, newWishData);
   }
 }

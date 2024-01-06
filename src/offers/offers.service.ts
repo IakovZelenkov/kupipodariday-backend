@@ -18,20 +18,20 @@ export class OffersService {
     private readonly wishesService: WishesService,
   ) {}
 
-  async create(user: User, createOfferDto: CreateOfferDto): Promise<void> {
+  async create(user: User, createOfferDto: CreateOfferDto): Promise<Offer> {
     const wish = await this.wishesService.findById(createOfferDto.itemId);
 
     if (wish.owner.id === user.id) {
       throw new ForbiddenException('Нельзя скидываться на подарок самому себе');
     }
 
-    const sum = wish.raised + createOfferDto.amount;
+    const sum = Number(wish.raised) + Number(createOfferDto.amount);
 
     if (sum > wish.price) {
       throw new ForbiddenException('Сумма превышает стоимость подарка');
     }
 
-    await this.wishesService.update(wish.id, { raised: sum }, wish.owner.id);
+    await this.wishesService.updateRaised(wish.id, sum);
 
     const newOffer = this.offersRepository.create({
       amount: createOfferDto.amount,
@@ -40,7 +40,7 @@ export class OffersService {
       item: wish,
     });
 
-    await this.offersRepository.save(newOffer);
+    return await this.offersRepository.save(newOffer);
   }
 
   async findAll() {

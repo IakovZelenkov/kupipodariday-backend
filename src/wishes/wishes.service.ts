@@ -60,7 +60,14 @@ export class WishesService {
       );
     }
 
-    await this.wishesRepository.update({ id }, updateWishDto);
+    await this.wishesRepository.update(id, updateWishDto);
+  }
+
+  async updateRaised(id: number, amount: number) {
+    const wish = await this.findById(id);
+
+    wish.raised = amount;
+    await this.wishesRepository.save(wish);
   }
 
   async removeOne(id: number, userId: number): Promise<void> {

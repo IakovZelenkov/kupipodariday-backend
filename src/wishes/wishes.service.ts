@@ -72,5 +72,37 @@ export class WishesService {
     await this.wishesRepository.delete({ id });
   }
 
-  // TODO Wish Copying, Last Wishes
+  async getLastWIshes(): Promise<Wish[]> {
+    const lastWishes = await this.wishesRepository.find({
+      order: { id: 'DESC' },
+      take: 40,
+    });
+
+    return lastWishes;
+  }
+
+  async getTopWishes(): Promise<Wish[]> {
+    const topWishes = await this.wishesRepository.find({
+      order: { copied: 'DESC' },
+      take: 10,
+    });
+
+    return topWishes;
+  }
+
+  async findManyByUserId(userId: number): Promise<Wish[]> {
+    const wishes = await this.wishesRepository.find({
+      where: { owner: { id: userId } },
+    });
+
+    return wishes;
+  }
+
+  async findManyByUsername(username: string): Promise<Wish[]> {
+    const wishes = await this.wishesRepository.find({
+      where: { owner: { username } },
+    });
+
+    return wishes;
+  }
 }

@@ -105,6 +105,4 @@ export class UsersService {
       where: [{ username: Like(`%${query}%`) }, { email: Like(`%${query}%`) }],
     });
   }
-
-  // TODO findeUserWishes, findMany
 }

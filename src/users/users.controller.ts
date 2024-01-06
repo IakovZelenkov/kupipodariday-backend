@@ -10,14 +10,19 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { User } from './entities/user.entity';
+import { Wish } from 'src/wishes/entities/wish.entity';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { WishesService } from 'src/wishes/wishes.service';
 
 @UseGuards(JwtGuard)
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly wishesService: WishesService,
+  ) {}
 
   @Get('me')
   async getMe(@Req() req: any): Promise<User> {
@@ -35,6 +40,18 @@ export class UsersController {
     @Body() updateUsertDto: UpdateUserDto,
   ): Promise<User> {
     return await this.usersService.updateOne(req.user.id, updateUsertDto);
+  }
+
+  @Get('me/wishes')
+  async getMyWishes(@Req() req): Promise<Wish[]> {
+    const wishes = await this.wishesService.findManyByUserId(req.user.id);
+    return wishes;
+  }
+
+  @Get(':username/wishes')
+  async findWishesByUserName(@Param('username') username: string) {
+    const wishes = await this.wishesService.findManyByUsername(username);
+    return wishes;
   }
 
   @Get(':username')

@@ -3,10 +3,8 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Req,
-  Delete,
   UseGuards,
 } from '@nestjs/common';
 import { OffersService } from './offers.service';

@@ -120,6 +120,20 @@ export class WishesService {
       throw new ForbiddenException('Нельзя копировать свой подарок');
     }
 
+    const isCopied = await this.wishesRepository.findOne({
+      where: {
+        name: wish.name,
+        link: wish.link,
+        image: wish.image,
+        price: wish.price,
+        owner: { id: user.id },
+      },
+    });
+
+    if (isCopied) {
+      throw new ForbiddenException('Вы уже копировали этот подарок');
+    }
+
     await this.wishesRepository.increment({ id: wish.id }, 'copied', 1);
 
     const newWishData: CreateWishDto = {

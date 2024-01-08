@@ -30,7 +30,6 @@ export class WishesController {
 
   @Get('last')
   async getLastWishes(): Promise<Wish[]> {
-    console.log('called last');
     return await this.wishesService.findLastWIshes();
   }
 

@@ -15,7 +15,6 @@ import { UpdateWishDto } from './dto/update-wish.dto';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { Wish } from './entities/wish.entity';
 
-@UseGuards(JwtGuard)
 @Controller('wishes')
 export class WishesController {
   constructor(private readonly wishesService: WishesService) {}
@@ -31,6 +30,7 @@ export class WishesController {
 
   @Get('last')
   async getLastWishes(): Promise<Wish[]> {
+    console.log('called last');
     return await this.wishesService.findLastWIshes();
   }
 

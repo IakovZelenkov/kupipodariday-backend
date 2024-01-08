@@ -81,7 +81,7 @@ export class WishesService {
 
   async findLastWIshes(): Promise<Wish[]> {
     const lastWishes = await this.wishesRepository.find({
-      order: { id: 'DESC' },
+      order: { createdAt: 'DESC' },
       take: 40,
     });
 

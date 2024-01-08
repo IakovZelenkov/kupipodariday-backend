@@ -29,6 +29,11 @@ export class UsersService {
       throw new ConflictException('Пользователь с такой почтой уже существует');
     }
 
+    // Workaround for empty about string from frontend
+    if (createUserDto.about === '') {
+      delete createUserDto.about;
+    }
+
     const user = this.usersRepository.create(createUserDto);
     user.password = await this.hashService.hashPassword(createUserDto.password);
     return await this.usersRepository.save(user);

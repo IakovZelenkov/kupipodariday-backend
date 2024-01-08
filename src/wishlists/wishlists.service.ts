@@ -23,40 +23,44 @@ export class WishlistsService {
     user: User,
     createWishlistDto: CreateWishlistDto,
   ): Promise<Wishlist> {
-    try {
-      const items = await Promise.all(
-        createWishlistDto.itemsId.map((id) => this.wishesService.findById(id)),
-      );
+    const items = await Promise.all(
+      createWishlistDto.itemsId.map((id) => this.wishesService.findById(id)),
+    );
 
-      const wishlist = this.wishlistsRepository.create({
-        ...createWishlistDto,
-        owner: user,
-        items,
-      });
+    const wishlist = this.wishlistsRepository.create({
+      ...createWishlistDto,
+      owner: user,
+      items,
+    });
 
-      return this.wishlistsRepository.save(wishlist);
-    } catch (error) {
-      throw new Error('Произошла ошибка при создании списка подарков.');
-    }
+    return this.wishlistsRepository.save(wishlist);
   }
 
   async findById(id: number): Promise<Wishlist> {
-    return this.wishlistsRepository.findOne({
+    const wishlist = await this.wishlistsRepository.findOne({
       where: { id },
       relations: ['owner', 'items'],
     });
+
+    if (!wishlist) {
+      throw new NotFoundException('Список подарков не найден');
+    }
+
+    return wishlist;
   }
 
   async findAll(): Promise<Wishlist[]> {
-    return this.wishlistsRepository.find({
+    const wishlists = await this.wishlistsRepository.find({
       relations: ['owner', 'items'],
     });
+
+    return wishlists;
   }
 
   async update(
     id: number,
     updateWishlistDto: UpdateWishlistDto,
-    owner: User,
+    user: User,
   ): Promise<Wishlist> {
     const wishlist = await this.findById(id);
 
@@ -64,7 +68,7 @@ export class WishlistsService {
       throw new NotFoundException('Список подарков не найден');
     }
 
-    if (wishlist.owner.id !== owner.id) {
+    if (wishlist.owner.id !== user.id) {
       throw new ForbiddenException('Вы не можете редактировать чужие списки');
     }
 
@@ -79,5 +83,16 @@ export class WishlistsService {
       description: updateWishlistDto.description,
       items: wishes,
     });
+  }
+
+  async remove(id: number, userId): Promise<Wishlist> {
+    const wishlist = await this.findById(id);
+
+    if (wishlist.owner.id !== userId) {
+      throw new ForbiddenException('Вы не можете удалять чужие списки');
+    }
+
+    await this.wishlistsRepository.delete(id);
+    return wishlist;
   }
 }

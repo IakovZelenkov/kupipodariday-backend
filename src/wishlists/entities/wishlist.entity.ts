@@ -9,7 +9,7 @@ export class Wishlist extends AbstractEntity {
   @Length(1, 250)
   name: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   @Length(1, 1500)
   description: string;
 
